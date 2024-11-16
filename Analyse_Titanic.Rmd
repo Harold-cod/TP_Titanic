@@ -1,55 +1,95 @@
 ---
-title: "Analyse Titanic"
+title: "**Titanic data analysis**"
 output:
-  html_document: default
-  pdf_document: default
+html_document: default
+pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center', warning = FALSE)
 ```
-
+## **Introduction**
+This report presents an analysis of the Titanic data using the custom package "TitanicPackage".
 ```{r}
 library(carData)
-
+library(TitanicPackage)
+library(ggplot2)
 ```
-
+## **Load of data**
 ```{r}
 head(TitanicSurvival)
 ```
+## **Descriptive statistics of variables**
 ```{r}
 summary(TitanicSurvival)
-
 ```
-```{r}
-# Calcul des statistiques descriptives pour l'?ge
-summary(TitanicSurvival$age)
-```
+## **Visualization of the results**
 
+#### Figure 1: Age distribution of passengers
 ```{r}
-library(ggplot2)
-
+ggplot(TitanicSurvival, aes(x=age))+ 
+    geom_histogram(binwidth=5,color="darkblue",fill="lightblue")+
+    geom_vline(aes(xintercept=mean(age, na.rm=TRUE)), color="red", linetype="dashed",  linewidth=1)+ labs(title = "Distribution of Passengers by age", x= "Age", y = "Number of passengers")+ theme(plot.title = element_text(hjust = 0.5))
 ```
 
+The above graph shows a distribution of passengers according to age, we can see that the youngest person was under 2 months and the oldest person was 80 years old, the average age is around 29 and the majority of passengers were between 25 and 30.
+
+#### Figure 2: Gender distribution of passengers
 ```{r}
-# Survivors' breakdown by sex and passenger class
+ggplot(TitanicSurvival, aes(x=sex, fill = sex)) + geom_bar(color = "black")+ scale_fill_manual(values = c("female" = "pink", "male" = "blue"))+ labs(title = "Distribution of Passengers by Sex", x ="Sex", y = "Number of passengers")+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+The above graph shows us the proportion of the sex of the passengers of the Titanic, we can see that there were more men than women.
+
+#### Figure 3: Passenger Class distribution
+```{r}
+ggplot(TitanicSurvival, aes(x=passengerClass, fill = passengerClass)) + geom_bar(color = "black")+ scale_fill_manual(values = c("1st" = "red", "2nd" = "green", "3rd" = "blue" ))+ labs(title = "Distribution of Passengers by class", x ="Passenger Class", y = "Number of passengers")+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+The above graph shows us the proportion of different passenger classes, we see that the 1st and 2nd class have practically the same number of passengers, while the 3rd class represents the sum of the other 2 classes.
+
+#### Figure 4: Passenger Survival distribution
+```{r}
+ggplot(TitanicSurvival, aes(x=survived, fill = survived)) + geom_bar(color = "black")+ scale_fill_manual(values = c("yes" = "green", "no" = "red"))+ labs(title = "Distribution of passengers according to survival", x ="Survival", y = "Number of passengers")+ theme(plot.title = element_text(hjust = 0.5))
+```
+
+The above graph shows us the proportion of passengers who survived or not, we see that there were more deaths than survivors.
+
+#### Figure 5: Distribution of Survivors by Sex and Class
+```{r}
 ggplot(TitanicSurvival, aes(x = sex, fill = survived)) +
-  geom_bar(position = "dodge") +
+  geom_bar(position = "dodge") + 
+  scale_fill_manual(values = c("yes" = "green", "no" = "red"))+
   facet_wrap(~passengerClass) +
-  labs(title = "Survivors' breakdown by sex and passenger class", x = "Sex", y = "Number of survivors")  + theme(plot.title = element_text(hjust = 0.5))
+  labs(title = "Survivors' breakdown by sex and passenger class", x = "Sex", y = "Number of   survivors")+
+  theme(plot.title = element_text(hjust = 0.5))
 ```
+
+The above graph shows the proportion of passengers who survived according to sex and class, we see that in all classes women have a higher survival percentage compared to men, the 1st class having had the least deaths while the 3rd class had more deaths and which were mostly men.
+
+#### Figure 6: Age distribution of survivors
+
 ```{r}
-# Age of passengers based on survival
-ggplot(TitanicSurvival, aes(x = survived, y = age, fill = survived)) +
-  geom_violin(trim = FALSE, fill = "red", color = "red", alpha = 0.7) + 
-  geom_boxplot(width = 0.1, fill = "red", color = "red", outlier.shape = NA) +  # Boxplot sans points aberrants
-  labs(title = "Age distribution of passengers by survival", x = "survival
-", y = "?ge") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  scale_fill_manual(values = c("no" = "red", "yes" = "blue")) +
-  theme_minimal()
+ggplot(TitanicSurvival, aes(x = survived, y = age, fill = survived))+
+  geom_violin(trim = FALSE, alpha = 0.7)+ 
+  geom_boxplot(width = 0.1, outlier.shape = NA)+
+  labs(title = "Age distribution of passengers by survival", x = "Survival
+  ", y = "Age")+ 
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values = c("no" = "red", "yes" = "green"))
 ```
 
-Interpretations des resultats
+The above graph is a violin plot showing the age distribution of passengers according to their survival. In summary, the graph suggests that younger passengers had a better chance of survival than older people, and the priorities were more children and women.
 
-D'apres les du graphe 1
+## **Passenger survival rates by class** 
+```{r}
+TitanicPackage::taux_survie_classe(TitanicSurvival)
+```
+## **Passenger survival rates by sex** 
+```{r}
+TitanicPackage::taux_survie_sexe(TitanicSurvival)
+
+```
+## **Conclusion**
+
+In sum, the analysis shows that certain groups, especially women and higher classes had a higher survival rate than men and passengers of 3rd class.
